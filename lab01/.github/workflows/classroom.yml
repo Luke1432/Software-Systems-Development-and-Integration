@@ -1,0 +1,135 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Test for the presence of git clone in readme.md
+      id: test-for-the-presence-of-git-clone-in-readme-md
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test for the presence of git clone in readme.md
+        setup-command: ''
+        command: cat README.md | grep "How do I clone a repository?"
+        input: ''
+        expected-output: git clone
+        comparison-method: contains
+        timeout: 1
+        max-score: 1
+    - name: Test for the presence of git commit in readme.md
+      id: test-for-the-presence-of-git-commit-in-readme-md
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test for the presence of git commit in readme.md
+        setup-command: ''
+        command: cat README.md | grep "How do I commit changes?"
+        input: ''
+        expected-output: git commit
+        comparison-method: contains
+        timeout: 1
+        max-score: 1
+    - name: Test for the presence of git checkout in readme.md
+      id: test-for-the-presence-of-git-checkout-in-readme-md
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test for the presence of git checkout in readme.md
+        setup-command: ''
+        command: cat README.md | grep "How do I switch between branches?"
+        input: ''
+        expected-output: git checkout|git switch
+        comparison-method: regex
+        timeout: 1
+        max-score: 1
+    - name: Test for the presence of git add in readme.md
+      id: test-for-the-presence-of-git-add-in-readme-md
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test for the presence of git add in readme.md
+        setup-command: ''
+        command: cat README.md | grep "How do I stage changes?"
+        input: ''
+        expected-output: git add
+        comparison-method: contains
+        timeout: 1
+        max-score: 1
+    - name: Test for the presence of git push in readme.md
+      id: test-for-the-presence-of-git-push-in-readme-md
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test for the presence of git push in readme.md
+        setup-command: ''
+        command: cat README.md | grep "How do I push changes?"
+        input: ''
+        expected-output: git push
+        comparison-method: contains
+        timeout: 1
+        max-score: 1
+    - name: Test for the presence of git pull in readme.md
+      id: test-for-the-presence-of-git-pull-in-readme-md
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test for the presence of git pull in readme.md
+        setup-command: ''
+        command: cat README.md | grep "How do I pull changes?"
+        input: ''
+        expected-output: git pull
+        comparison-method: contains
+        timeout: 1
+        max-score: 1
+    - name: Test that a development branch was created
+      id: test-that-a-development-branch-was-created
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test that a development branch was created
+        setup-command: git fetch origin
+        command: git show-ref | grep -e "remotes" | grep -ve "HEAD" | grep -ve "feedback"
+          | wc -l
+        input: ''
+        expected-output: "[2-9]"
+        comparison-method: regex
+        timeout: 5
+        max-score: 1
+    - name: Test .gitignore contents
+      id: test-gitignore-contents
+      uses: classroom-resources/autograding-io-grader@v1
+      with:
+        test-name: Test .gitignore contents
+        setup-command: ''
+        command: cat .gitignore
+        input: ''
+        expected-output: "*.class"
+        comparison-method: contains
+        timeout: 1
+        max-score: 1
+    - name: Test that a .java file was created
+      id: test-that-a-java-file-was-created
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Test that a .java file was created
+        setup-command: ''
+        command: md5sum *.java
+        timeout: 1
+        max-score: 1
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        TEST-FOR-THE-PRESENCE-OF-GIT-CLONE-IN-README-MD_RESULTS: "${{steps.test-for-the-presence-of-git-clone-in-readme-md.outputs.result}}"
+        TEST-FOR-THE-PRESENCE-OF-GIT-COMMIT-IN-README-MD_RESULTS: "${{steps.test-for-the-presence-of-git-commit-in-readme-md.outputs.result}}"
+        TEST-FOR-THE-PRESENCE-OF-GIT-CHECKOUT-IN-README-MD_RESULTS: "${{steps.test-for-the-presence-of-git-checkout-in-readme-md.outputs.result}}"
+        TEST-FOR-THE-PRESENCE-OF-GIT-ADD-IN-README-MD_RESULTS: "${{steps.test-for-the-presence-of-git-add-in-readme-md.outputs.result}}"
+        TEST-FOR-THE-PRESENCE-OF-GIT-PUSH-IN-README-MD_RESULTS: "${{steps.test-for-the-presence-of-git-push-in-readme-md.outputs.result}}"
+        TEST-FOR-THE-PRESENCE-OF-GIT-PULL-IN-README-MD_RESULTS: "${{steps.test-for-the-presence-of-git-pull-in-readme-md.outputs.result}}"
+        TEST-THAT-A-DEVELOPMENT-BRANCH-WAS-CREATED_RESULTS: "${{steps.test-that-a-development-branch-was-created.outputs.result}}"
+        TEST-GITIGNORE-CONTENTS_RESULTS: "${{steps.test-gitignore-contents.outputs.result}}"
+        TEST-THAT-A-JAVA-FILE-WAS-CREATED_RESULTS: "${{steps.test-that-a-java-file-was-created.outputs.result}}"
+      with:
+        runners: test-for-the-presence-of-git-clone-in-readme-md,test-for-the-presence-of-git-commit-in-readme-md,test-for-the-presence-of-git-checkout-in-readme-md,test-for-the-presence-of-git-add-in-readme-md,test-for-the-presence-of-git-push-in-readme-md,test-for-the-presence-of-git-pull-in-readme-md,test-that-a-development-branch-was-created,test-gitignore-contents,test-that-a-java-file-was-created
